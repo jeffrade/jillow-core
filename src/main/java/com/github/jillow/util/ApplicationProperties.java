@@ -4,7 +4,7 @@ public interface ApplicationProperties {
 	
 	String zwsId();
 	
-	String zpid();
+	String testZpid();
 	
 	String testAddress();
 	
@@ -17,5 +17,7 @@ public interface ApplicationProperties {
 	String charset();
 	
 	String urlParamSeparator();
+	
+	String zestimateUrl();
 	
 }
