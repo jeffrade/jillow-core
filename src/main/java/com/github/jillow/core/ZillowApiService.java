@@ -46,8 +46,17 @@ public class ZillowApiService {
 				,"response"
 				,"results"
 				,"result"
-				,"zestimate"
 			});
+	}
+	
+	public JSONObject getZillowZestimateJsonResponse(final String zwsId, final String zpid) {
+		final String parameterQuery = buildZestimateParameterQuery(zwsId, zpid);
+		JSONObject jsonResponse = getZillowJsonResponse(properties.zestimateUrl(), parameterQuery);
+		
+		return getJsonNthChildObject(jsonResponse, new String[]{
+				"Zestimate:zestimate"
+				,"response"
+		});
 	}
 	
 	public JSONObject getDeepSearchResultsJson(final String zwsId, final String address, final String cityStateZip, final boolean rentZestimate){
@@ -66,7 +75,9 @@ public class ZillowApiService {
 		JSONObject jsonObj = null;
 		
 		try {
-			connection = new URL(baseURL + properties.urlParamSeparator() + parameterQuery).openConnection();
+			final String url = baseURL + properties.urlParamSeparator() + parameterQuery;
+			LOG.debug(url);
+			connection = new URL(url).openConnection();
 			connection.setRequestProperty("Accept-Charset", properties.charset());
 			final InputStream response = connection.getInputStream();
 			responseString = IOUtils.toString(response, properties.charset());
@@ -107,6 +118,21 @@ public class ZillowApiService {
 				     URLEncoder.encode(zpid, properties.charset()), 
 				     URLEncoder.encode(String.valueOf(count), properties.charset()), 
 				     String.valueOf(rentZestimate));
+			LOG.debug(parameterQuery);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+		return parameterQuery;
+	}
+	
+	protected String buildZestimateParameterQuery(String zwsId, String zpid) {
+		String parameterQuery = null;
+		
+		try {
+			parameterQuery = String.format("zws-id=%s&zpid=%s", 
+				     URLEncoder.encode(zwsId, properties.charset()), 
+				     URLEncoder.encode(zpid, properties.charset()));
 			LOG.debug(parameterQuery);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
