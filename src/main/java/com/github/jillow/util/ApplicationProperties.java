@@ -20,4 +20,6 @@ public interface ApplicationProperties {
 	
 	String zestimateUrl();
 	
+	String updatedPropertyDetailsUrl();
+	
 }

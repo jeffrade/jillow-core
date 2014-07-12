@@ -36,40 +36,67 @@ public class ZillowApiService {
 			LOG.error("Error while binding", e);
 		}
     }
-
-	public JSONObject getZillowZestimateJsonResponse(final String zwsId, final String address, final String cityStateZip) {
+    
+    public JSONObject getZillowZpidByAddress(final String zwsId, final String address, final String cityStateZip){
+    	LOG.debug("Entering...");
 		final String parameterQuery = buildGetDeepSearchResultsParameterQuery(zwsId, address, cityStateZip, false);
 		JSONObject jsonResponse = getZillowJsonResponse(properties.deepSearchResultsUrl(), parameterQuery);
 
-		return getJsonNthChildObject(jsonResponse, new String[]{
+		return getJsonNthChildObject(jsonResponse
+			, new String[]{
 				"SearchResults:searchresults"
 				,"response"
 				,"results"
-				,"result"
-			});
+				,"result"}
+			, "zpid");
+    }
+
+	public JSONObject getZillowZestimateJsonResponse(final String zwsId, final String address, final String cityStateZip) {
+		LOG.debug("Entering...");
+		final String parameterQuery = buildGetDeepSearchResultsParameterQuery(zwsId, address, cityStateZip, false);
+		JSONObject jsonResponse = getZillowJsonResponse(properties.deepSearchResultsUrl(), parameterQuery);
+
+		return getJsonNthChildObject(jsonResponse
+			, new String[]{
+				"SearchResults:searchresults"
+				,"response"
+				,"results"
+				,"result"}
+			, "zestimate");
 	}
 	
 	public JSONObject getZillowZestimateJsonResponse(final String zwsId, final String zpid) {
-		final String parameterQuery = buildZestimateParameterQuery(zwsId, zpid);
+		LOG.debug("Entering...");
+		final String parameterQuery = buildZpidParameterQuery(zwsId, zpid);
 		JSONObject jsonResponse = getZillowJsonResponse(properties.zestimateUrl(), parameterQuery);
 		
-		return getJsonNthChildObject(jsonResponse, new String[]{
-				"Zestimate:zestimate"
-				,"response"
-		});
+		return getJsonNthChildObject(jsonResponse
+				, new String[]{
+					"Zestimate:zestimate"
+					,"response"}
+				, "zestimate");
 	}
 	
 	public JSONObject getDeepSearchResultsJson(final String zwsId, final String address, final String cityStateZip, final boolean rentZestimate){
+		LOG.debug("Entering...");
 		final String parameterQuery = buildGetDeepSearchResultsParameterQuery(zwsId, address, cityStateZip, rentZestimate);
 		return getZillowJsonResponse(properties.deepSearchResultsUrl(), parameterQuery);
 	}
 	
 	public JSONObject getDeepCompsJson(final String zwsId, final String zpid, final int count, final boolean rentZestimate){
+		LOG.debug("Entering...");
 		final String parameterQuery = buildGetDeepCompsParameterQuery(zwsId, zpid, count, rentZestimate);
 		return getZillowJsonResponse(properties.deepCompsUrl(), parameterQuery);
 	}
 
+	public JSONObject getUpdatedPropertyDetailsJson(final String zwsId, final String zpid){
+		LOG.debug("Entering...");
+		final String parameterQuery = buildZpidParameterQuery(zwsId, zpid);
+		return getZillowJsonResponse(properties.updatedPropertyDetailsUrl(), parameterQuery);
+	}
+
 	protected JSONObject getZillowJsonResponse(final String baseURL, final String parameterQuery) {
+		LOG.debug("Entering...");
 		URLConnection connection = null;
 		String responseString = null;
 		JSONObject jsonObj = null;
@@ -93,6 +120,7 @@ public class ZillowApiService {
 	}
 	
 	protected String buildGetDeepSearchResultsParameterQuery(String zwsId, String address, String cityStateZip, boolean rentZestimate){
+		LOG.debug("Entering...");
 		String parameterQuery = null;
 		
 		try {
@@ -110,6 +138,7 @@ public class ZillowApiService {
 	}
 
 	protected String buildGetDeepCompsParameterQuery(String zwsId, String zpid, int count, boolean rentZestimate) {
+		LOG.debug("Entering...");
 		String parameterQuery = null;
 		
 		try {
@@ -126,7 +155,8 @@ public class ZillowApiService {
 		return parameterQuery;
 	}
 	
-	protected String buildZestimateParameterQuery(String zwsId, String zpid) {
+	protected String buildZpidParameterQuery(String zwsId, String zpid) {
+		LOG.debug("Entering...");
 		String parameterQuery = null;
 		
 		try {
@@ -141,14 +171,15 @@ public class ZillowApiService {
 		return parameterQuery;
 	}
 	
-	protected JSONObject getJsonNthChildObject(JSONObject json, String[] childNodes){
-		JSONObject returnObject = json;
+	protected JSONObject getJsonNthChildObject(final JSONObject json, final String[] parentNodes, final String targetNode){
+		LOG.debug("Entering...");
+		JSONObject tempObject = json;
 		
-		for(String childNode : childNodes){
-			returnObject = (JSONObject) returnObject.get(childNode);
+		for(String parentNode : parentNodes){
+			tempObject = (JSONObject) tempObject.get(parentNode);
 		}
 		
-		return returnObject;
+		return new JSONObject(tempObject, new String[]{targetNode});
 	}
 
 }

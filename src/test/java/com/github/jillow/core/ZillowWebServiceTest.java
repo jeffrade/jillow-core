@@ -1,5 +1,6 @@
 package com.github.jillow.core;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -57,6 +58,42 @@ public class ZillowWebServiceTest {
 		JSONObject jsonAmount = (JSONObject) jsonObject.get("amount");
 		Long amountValue = Long.valueOf(jsonAmount.get("content").toString());
 		assertNotNull(amountValue);
+	}
+	
+	@Test
+	public void testGetUpdatedPropertyDetails() throws Exception{
+		final JSONObject response = service.getUpdatedPropertyDetailsJson(properties.zwsId(), properties.testZpid());
+		assertNotNull(response);
+		assertTrue(response.length() > 0);
+		assertTrue(!response.toString().toLowerCase().contains("error"));
+		JSONObject jsonObject = response.getJSONObject("UpdatedPropertyDetails:updatedPropertyDetails");
+		assertNotNull(jsonObject);
+		assertTrue(jsonObject.toString().contains("response"));
+		JSONObject jsonResponseObject = (JSONObject) jsonObject.get("response");
+		assertNotNull(jsonResponseObject);
+	}
+	
+	@Test
+	public void testGetZillowZpidByAddress() throws Exception{
+		final JSONObject response = service.getZillowZpidByAddress(properties.zwsId(), properties.testAddress(), properties.testZip());
+		assertNotNull(response);
+		assertTrue(response.length() > 0);
+		assertTrue(!response.toString().toLowerCase().contains("error"));
+		Object jsonObject = response.get("zpid");
+		assertNotNull(jsonObject);
+		assertTrue(jsonObject.toString().length() > 0);
+		assertTrue(Long.valueOf(jsonObject.toString()).longValue() > 0);
+	}
+	
+	@Test
+	public void testGetJsonNthChildObject() throws Exception{
+		final String jsonString = "{'firstNode':{'secondNode':{'lastNode':{'lastKey':'lastValue'}}}}";
+		JSONObject json = new JSONObject(jsonString);
+		JSONObject returnObject = service.getJsonNthChildObject(json, new String[]{"firstNode","secondNode"}, "lastNode");
+		assertNotNull(returnObject);
+		assertEquals(returnObject.toString(), "{\"lastNode\":{\"lastKey\":\"lastValue\"}}");
+		JSONObject lastNodeJson = returnObject.getJSONObject("lastNode");
+		assertEquals(lastNodeJson.get("lastKey").toString(), "lastValue");
 	}
 
 }
