@@ -11,9 +11,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.github.jillow.util.ApplicationProperties;
+import com.github.jillow.util.ChartUnitType;
 import com.pholser.util.properties.PropertyBinder;
 
-public class ZillowWebServiceTest {
+public class ZillowApiServiceTest {
 	
 	private ZillowApiService service = new ZillowApiService();
 	
@@ -94,6 +95,17 @@ public class ZillowWebServiceTest {
 		assertEquals(returnObject.toString(), "{\"lastNode\":{\"lastKey\":\"lastValue\"}}");
 		JSONObject lastNodeJson = returnObject.getJSONObject("lastNode");
 		assertEquals(lastNodeJson.get("lastKey").toString(), "lastValue");
+	}
+	
+	@Test
+	public void testGetChartJson() throws Exception{
+		final JSONObject response = service.getChartJson(properties.zwsId(), properties.testZpid(), ChartUnitType.DOLLAR, 300, 300);
+		assertNotNull(response);System.out.println(response.toString());
+		assertTrue(response.length() > 0);
+		assertTrue(!response.toString().toLowerCase().contains("error"));
+		Object jsonObject = response.get("Chart:chart");
+		assertNotNull(jsonObject);
+		assertTrue(jsonObject.toString().length() > 0);
 	}
 
 }
