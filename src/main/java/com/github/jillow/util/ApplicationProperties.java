@@ -22,4 +22,6 @@ public interface ApplicationProperties {
 	
 	String updatedPropertyDetailsUrl();
 	
+	String chartUrl();
+	
 }
